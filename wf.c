@@ -11,6 +11,7 @@
 #define ClientMessage SDL_QUIT
 #define EV(y) ev.y
 #endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -30,163 +31,26 @@
 #define XXXXX 0
 #define A(a,b,c,d,e) a|b<<4,c|d<<4,e
 #define B(a,b,c,d,e) |a<<4,b|c<<4,d|e<<4,
+int T;
+static const char win[]={
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,3,3,2,3,3,2,2,2,2,2,2,
+	2,2,2,2,2,3,3,2,3,3,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,3,2,2,2,3,2,2,2,2,2,2,
+	2,2,2,2,2,2,3,2,3,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,3,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+};
 static const uint8_t abc[]={
-	A(
-	XXXXX,
-	XOOOX,
-	XXXXX,
-	XOOOX,
-	XOOOX)
-	B(
-	XXXXX,
-	XOOOX,
-	XXXXO,
-	XOOOX,
-	XXXXX)
-	A(
-	XXXXX,
-	XOOOO,
-	XOOOO,
-	XOOOO,
-	XXXXX)
-	B(
-	XXXXO,
-	XOOOX,
-	XOOOX,
-	XOOOX,
-	XXXXO)
-	A(
-	XXXXX,
-	XOOOO,
-	XXXXO,
-	XOOOO,
-	XXXXX)
-	B(
-	XXXXX,
-	XOOOO,
-	XXXXO,
-	XOOOO,
-	XOOOO)
-	A(
-	XXXXX,
-	XOOOO,
-	XOOXX,
-	XOOOX,
-	XXXXX)
-	B(
-	XOOOX,
-	XOOOX,
-	XXXXX,
-	XOOOX,
-	XOOOX)
-	A(
-	XXXXX,
-	OOXOO,
-	OOXOO,
-	OOXOO,
-	XXXXX)
-	B(
-	OOOXX,
-	OOOOX,
-	OOOOX,
-	XOOOX,
-	XXXXX)
-	A(
-	XOOOX,
-	XOOXO,
-	XXXXO,
-	XOOXO,
-	XOOOX)
-	B(
-	XOOOO,
-	XOOOO,
-	XOOOO,
-	XOOOO,
-	XXXXX)
-	A(
-	XOOOX,
-	XXOXX,
-	XOXOX,
-	XOOOX,
-	XOOOX)
-	B(
-	XOOOX,
-	XXOOX,
-	XOXOX,
-	XOOXX,
-	XOOOX)
-	A(
-	XXXXX,
-	XOOOX,
-	XOOOX,
-	XOOOX,
-	XXXXX)
-	B(
-	XXXXO,
-	XOOOX,
-	XXXXO,
-	XOOOO,
-	XOOOO)
-	A(
-	XXXXX,
-	XOOOX,
-	XOOOX,
-	XXXXX,
-	OOXOO)
-	B(
-	XXXXO,
-	XOOOX,
-	XXXXO,
-	XOOOX,
-	XOOOX)
-	A(
-	XXXXX,
-	XOOOO,
-	XXXXX,
-	OOOOX,
-	XXXXX)
-	B(
-	XXXXX,
-	OOXOO,
-	OOXOO,
-	OOXOO,
-	OOXOO)
-	A(
-	XOOOX,
-	XOOOX,
-	XOOOX,
-	XOOOX,
-	XXXXX)
-	B(
-	XOOOX,
-	XOOOX,
-	OXOXO,
-	OXOXO,
-	OOXOO)
-	A(
-	XOOOX,
-	XOOOX,
-	XOXOX,
-	XOXOX,
-	OXOXO)
-	B(
-	XOOOX,
-	OXOXO,
-	OOXOO,
-	OXOXO,
-	XOOOX)
-	A(
-	XOOOX,
-	XOOOX,
-	OXOXO,
-	OOXOO,
-	OOXOO)
-	B(
-	XXXXX,
-	OOOOX,
-	XXXXX,
-	XOOOO,
-	XXXXX)
 	A(
 	XXXXX,
 	XOOOX,
@@ -295,18 +159,19 @@ void allzero(int x,int y){
 		}
 }
 int click(int x,int y){
+	x&=15;
+	y&=15;
 	int q=x|y<<4;
 	if(lose){
 		F[q]=1;
 		makefield();
 		F[q]=0;
 		lose=0;
-	}
-	if(F[q]==1)
+		T=0;
+	}else if(F[q]==1)
 		lose=1;
-	if(!getdot(x,y)){
+	else if(!getdot(x,y))
 		allzero(x,y);
-	}
 	F[q]|=2;
 }
 int main(int argc,char**argv){
@@ -349,11 +214,14 @@ int main(int argc,char**argv){
 					if(!(F[q]&2))
 						F[q]^=4;
 				}else if(EV(button.button)==2){
-					if(getmark(x,y)==getdot(x,y)){
+					printf("%d %d %d\n",getmark(x,y),getdot(x,y),F[q]);
+					if(getmark(x,y)==getdot(x,y)&&F[q]==2){
 						for(int xx=-1;xx<2;xx++)
 							for(int yy=-1;yy<2;yy++)
-								if(!(F[x+xx|y+yy<<4]&4))
+								if(!(F[x+xx&15|(y+yy&15)<<4]&4)){
 									click(x+xx,y+yy);
+									if(lose)goto lost;
+								}
 					}
 				}else if(!(F[q]&4)){
 					click(x,y);
@@ -361,7 +229,7 @@ int main(int argc,char**argv){
 			case(ClientMessage)return 0;
 			}
 		}
-		glClear(GL_COLOR_BUFFER_BIT);
+		lost:glClear(GL_COLOR_BUFFER_BIT);
 		glBegin(GL_LINES);
 		for(int x=16;x<256;x+=16){
 			glVertex2i(x,0);
@@ -370,8 +238,10 @@ int main(int argc,char**argv){
 			glVertex2i(256,x);
 		}
 		glEnd();
+		int on=0;
 		for(int z=0;z<256;z++){
 			int x=z&15,y=z>>4;
+			on+=F[z]&2;
 			if(F[z]&4){
 				glColor3ub(255,192,203);
 				glRecti(x*16,y*16,x*16+16,y*16+16);
@@ -384,7 +254,7 @@ int main(int argc,char**argv){
 					glColor3ub(255,255,255);
 				}else{
 					glBegin(GL_POINTS);
-					tfChar(x*16+5,y*16+5,dots+26);
+					tfChar(x*16+5,y*16+5,dots);
 					glEnd();
 				}
 			}else if(F[z]&1){
@@ -394,6 +264,13 @@ int main(int argc,char**argv){
 				glColor3ub(255,255,255);
 			}
 		}
+		printf("%d\n",on);
+		if(on==432){
+			printf("Won %d",T*3/100);
+			lose=1;
+			memcpy(F,win,256);
+		}
+		T++;
 		#ifdef GLX
 		usleep(60000-en/5);
 		#else

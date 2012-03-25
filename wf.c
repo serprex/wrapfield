@@ -160,7 +160,7 @@ int main(int argc,char**argv){
 	SDL_Surface*dpy=SDL_SetVideoMode(256,256,0,SDL_OPENGL);
 	#else
 	Display*dpy=XOpenDisplay(0);
-	XVisualInfo*vi=glXChooseVisual(dpy,DefaultScreen(dpy),(int[]){GLX_RGBA,None});
+	XVisualInfo*vi=glXChooseVisual(dpy,DefaultScreen(dpy),(int[]){GLX_DOUBLEBUFFER,GLX_RGBA,None});
 	Window Wdo=XCreateWindow(dpy,RootWindow(dpy,vi->screen),0,0,256,256,0,vi->depth,InputOutput,vi->visual,CWColormap|CWEventMask,(XSetWindowAttributes[]){{.colormap=XCreateColormap(dpy,RootWindow(dpy,vi->screen),vi->visual,AllocNone),.event_mask=ButtonPressMask}});
 	XMapWindow(dpy,Wdo);
 	glXMakeCurrent(dpy,Wdo,glXCreateContext(dpy,vi,0,GL_TRUE));
@@ -168,8 +168,8 @@ int main(int argc,char**argv){
 	srand(time(0));
 	glOrtho(0,256,256,0,1,-1);
 	for(;;){
-		glFlush();
 		#ifdef GLX
+		glXSwapBuffers(dpy,Wdo);
 		XEvent ev;
 		while(XPending(dpy)){
 			KeySym ks;

@@ -130,8 +130,7 @@ void allzero(int x,int y){
 	for(int xx=-1;xx<2;xx++)
 		for(int yy=-1;yy<2;yy++){
 			int X=x+xx&15,Y=y+yy&15;
-			if(!getdot(X,Y))
-				allzero(X,Y);
+			if(!getdot(X,Y))allzero(X,Y);
 			else F[X+Y*16]|=2;
 		}
 }
@@ -146,8 +145,7 @@ void click(int x,int y){
 				int x=rand()&255;
 				if(!F[x]){
 					F[x]=1;
-					if(++m==40)
-						break;
+					if(++m==40)break;
 				}
 			}
 		}while(getdot(x,y));
@@ -155,10 +153,8 @@ void click(int x,int y){
 		lose=0;
 		T=0;
 		allzero(x,y);
-	}else if(F[q]==1)
-		lose=1;
-	else if(!getdot(x,y))
-		allzero(x,y);
+	}else if(F[q]==1)lose=1;
+	else if(!getdot(x,y))allzero(x,y);
 	F[q]|=2;
 }
 int main(int argc,char**argv){
@@ -189,8 +185,7 @@ int main(int argc,char**argv){
 				int q=EV(button.x)>>4|EV(button.y)&240,x=q&15,y=q>>4;
 				switch(EV(button.button)){
 				case(1)
-					if(!(F[q]&4))
-						click(x,y);
+					if(!(F[q]&4))click(x,y);
 				case(2)
 					if(F[q]==2&&getmark(x,y)==getdot(x,y))
 						for(int xx=-1;xx<2;xx++)
@@ -202,8 +197,7 @@ int main(int argc,char**argv){
 								}
 							}
 				case(3)
-					if(!(F[q]&2))
-						F[q]^=4;
+					if(!(F[q]&2))F[q]^=4;
 				}
 			}
 			#ifndef GLX

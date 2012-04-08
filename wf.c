@@ -14,10 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define XXXXX 0
-#define XOOOX 1
-#define OOOOX 2
-#define XOOOO 3
+#define XXX 0
+#define XOX 1
+#define OOX 2
+#define XOO 3
 #define A(a,b,c,d,e) a|b<<2|c<<4|d<<6,e
 #define B(a,b,c,d,e) |a<<2|b<<4|c<<6,d|e<<2
 #define C(a,b,c,d,e) |a<<4|b<<6,c|d<<2|e<<4
@@ -38,65 +38,65 @@ const unsigned char col[]={0,255,0,255,255,255,0,0,255,96,162,255,192,200,128,0,
 const unsigned char colid[]={WHT,GRE,RED,TUR,DED,DUR,DEL,PUR};
 const uint8_t abc[]={
 	A(
-	XXXXX,
-	XOOOX,
-	XOOOX,
-	XOOOX,
-	XXXXX)
+	XXX,
+	XOX,
+	XOX,
+	XOX,
+	XXX)
 	B(
-	OOOOX,
-	OOOOX,
-	OOOOX,
-	OOOOX,
-	OOOOX)
+	OOX,
+	OOX,
+	OOX,
+	OOX,
+	OOX)
 	C(
-	XXXXX,
-	OOOOX,
-	XXXXX,
-	XOOOO,
-	XXXXX)
+	XXX,
+	OOX,
+	XXX,
+	XOO,
+	XXX)
 	D(
-	XXXXX,
-	OOOOX,
-	XXXXX,
-	OOOOX,
-	XXXXX)
+	XXX,
+	OOX,
+	XXX,
+	OOX,
+	XXX)
 	A(
-	XOOOX,
-	XOOOX,
-	XXXXX,
-	OOOOX,
-	OOOOX)
+	XOX,
+	XOX,
+	XXX,
+	OOX,
+	OOX)
 	B(
-	XXXXX,
-	XOOOO,
-	XXXXX,
-	OOOOX,
-	XXXXX)
+	XXX,
+	XOO,
+	XXX,
+	OOX,
+	XXX)
 	C(
-	XOOOO,
-	XOOOO,
-	XXXXX,
-	XOOOX,
-	XXXXX)
+	XOO,
+	XOO,
+	XXX,
+	XOX,
+	XXX)
 	D(
-	XXXXX,
-	OOOOX,
-	OOOOX,
-	OOOOX,
-	OOOOX)
+	XXX,
+	OOX,
+	OOX,
+	OOX,
+	OOX)
 	A(
-	XXXXX,
-	XOOOX,
-	XXXXX,
-	XOOOX,
-	XXXXX)
+	XXX,
+	XOX,
+	XXX,
+	XOX,
+	XXX)
 	B(
-	XXXXX,
-	XOOOX,
-	XXXXX,
-	OOOOX,
-	OOOOX)
+	XXX,
+	XOX,
+	XXX,
+	OOX,
+	OOX)
 };
 #define case(x) break;case x:;
 char F[256];
@@ -114,7 +114,6 @@ int getdot(int x,int y){
 	return getxy(x-1,y-1)+getxy(x-1,y)+getxy(x-1,y+1)+getxy(x,y-1)+getxy(x,y+1)+getxy(x+1,y-1)+getxy(x+1,y)+getxy(x+1,y+1);
 }
 void tfChar(int x,int y,int c){
-	//glColor3ubv(col+WHT);
 	glBegin(GL_POINTS);
 	for(int j=0;j<5;j++)
 		for(int i=0;i<5;i++){

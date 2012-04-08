@@ -22,13 +22,20 @@
 #define B(a,b,c,d,e) |a<<2|b<<4|c<<6,d|e<<2
 #define C(a,b,c,d,e) |a<<4|b<<6,c|d<<2|e<<4
 #define D(a,b,c,d,e) |a<<6,b|c<<2|d<<4|e<<6,
-const unsigned char col[]={255,255,255,0,0,255,96,162,255,192,200},win[]={70,71,86,87,73,74,89,90,118,122,135,137,152};
-#define WHT 0
-#define YEL 1
-#define RED 2
-#define BLU 3
-#define PK1 5
-#define PK2 8
+const unsigned char col[]={0,255,0,255,255,255,0,0,255,96,162,255,192,200,128,0,128,128,0,0},win[]={70,71,86,87,73,74,89,90,118,122,135,137,152};
+#define GRE 0
+#define TUR GRE+2
+#define WHT TUR+1
+#define YEL WHT+1
+#define RED YEL+1
+#define BLU RED+1
+#define PK1 BLU+2
+#define PK2 PK1+3
+#define PUR PK2+3
+#define DUR PUR+1
+#define DEL DUR+1
+#define DED DEL+2
+const unsigned char colid[]={WHT,GRE,RED,TUR,DED,DUR,DEL,PUR};
 const uint8_t abc[]={
 	A(
 	XXXXX,
@@ -107,7 +114,7 @@ int getdot(int x,int y){
 	return getxy(x-1,y-1)+getxy(x-1,y)+getxy(x-1,y+1)+getxy(x,y-1)+getxy(x,y+1)+getxy(x+1,y-1)+getxy(x+1,y)+getxy(x+1,y+1);
 }
 void tfChar(int x,int y,int c){
-	glColor3ubv(col+WHT);
+	//glColor3ubv(col+WHT);
 	glBegin(GL_POINTS);
 	for(int j=0;j<5;j++)
 		for(int i=0;i<5;i++){
@@ -155,7 +162,7 @@ void click(int x,int y){
 	F[q]|=2;
 }
 int main(int argc,char**argv){
-	#ifdef SDL
+	#ifndef GLX
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Surface*dpy=SDL_SetVideoMode(256,256,0,SDL_OPENGL);
 	#else
@@ -172,13 +179,11 @@ int main(int argc,char**argv){
 		glXSwapBuffers(dpy,Wdo);
 		XEvent ev;
 		while(XPending(dpy)){
-			KeySym ks;
 			XNextEvent(dpy,&ev);
 		#else
 		SDL_GL_SwapBuffers();
 		SDL_Event ev;
 		while(SDL_PollEvent(&ev)){
-			SDLKey ks;
 		#endif
 			if(ev.type==ButtonPress){
 				int q=EV(button.x)>>4|EV(button.y)&240,x=q&15,y=q>>4;
@@ -227,7 +232,10 @@ int main(int argc,char**argv){
 				if(!dots){
 					glColor3ubv(col+BLU);
 					glRecti(x*16,y*16,x*16+16,y*16+16);
-				}else tfChar(x*16+5,y*16+5,dots);
+				}else{
+					glColor3ubv(col+colid[dots-1]);
+					tfChar(x*16+5,y*16+5,dots);
+				}
 			}else if(F[z]&1){
 				if(!lose&&F[z]==1)continue;
 				glColor3ubv(col+(F[z]==1?YEL:RED));

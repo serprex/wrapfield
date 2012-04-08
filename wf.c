@@ -1,16 +1,4 @@
-#ifdef GLX
-#include <GL/glx.h>
-#include <sys/unistd.h>
-#define EV(y) ev.x##y
-#else
-#include <SDL.h>
-#include <SDL_opengl.h>
-#define ButtonPress SDL_MOUSEBUTTONDOWN
-#define ButtonRelease SDL_MOUSEBUTTONUP
-#define MotionNotify SDL_MOUSEMOTION
-#define ClientMessage SDL_QUIT
-#define EV(y) ev.y
-#endif
+#include <GL/glfw.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -22,14 +10,13 @@
 #define B(a,b,c,d,e) |a<<2|b<<4|c<<6,d|e<<2
 #define C(a,b,c,d,e) |a<<4|b<<6,c|d<<2|e<<4
 #define D(a,b,c,d,e) |a<<6,b|c<<2|d<<4|e<<6,
-const unsigned char col[]={0,255,0,255,255,255,0,0,255,96,162,255,192,200,128,0,128,128,0,0},win[]={70,71,86,87,73,74,89,90,118,122,135,137,152};
-#define GRE 0
-#define TUR GRE+2
-#define WHT TUR+1
+const unsigned char col[]={255,255,255,0,0,255,0,255,255,96,162,255,192,200,128,0,128,128,0,0},win[]={70,71,86,87,73,74,89,90,118,122,135,137,152};
+#define WHT 0
 #define YEL WHT+1
 #define RED YEL+1
-#define BLU RED+1
-#define PK1 BLU+2
+#define GRE RED+2
+#define TUR GRE+2
+#define PK1 TUR+2
 #define PK2 PK1+3
 #define PUR PK2+3
 #define DUR PUR+1
@@ -100,7 +87,7 @@ const uint8_t abc[]={
 };
 #define case(x) break;case x:;
 char F[256];
-int T,lose=1;
+int T,Tx,Ty,lose=1;
 int getxy(int x,int y){
 	return F[(x&15)+(y&15)*16]&1;
 }
@@ -136,6 +123,8 @@ void allzero(int x,int y){
 void click(int x,int y){
 	int q=x+y*16;
 	if(lose){
+		Tx=x*16+16;
+		Ty=y*16+4;
 		F[q]=1;
 		do{
 			int m=0;
@@ -156,54 +145,38 @@ void click(int x,int y){
 	else if(!getdot(x,y))allzero(x,y);
 	F[q]|=2;
 }
-int main(int argc,char**argv){
-	#ifndef GLX
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_Surface*dpy=SDL_SetVideoMode(256,256,0,SDL_OPENGL);
-	#else
-	Display*dpy=XOpenDisplay(0);
-	XVisualInfo*vi=glXChooseVisual(dpy,DefaultScreen(dpy),(int[]){GLX_DOUBLEBUFFER,GLX_RGBA,None});
-	Window Wdo=XCreateWindow(dpy,RootWindow(dpy,vi->screen),0,0,256,256,0,vi->depth,InputOutput,vi->visual,CWColormap|CWEventMask,(XSetWindowAttributes[]){{.colormap=XCreateColormap(dpy,RootWindow(dpy,vi->screen),vi->visual,AllocNone),.event_mask=ButtonPressMask}});
-	XMapWindow(dpy,Wdo);
-	glXMakeCurrent(dpy,Wdo,glXCreateContext(dpy,vi,0,GL_TRUE));
-	#endif
-	srand(time(0));
-	glOrtho(0,256,256,0,1,-1);
-	for(;;){
-		#ifdef GLX
-		glXSwapBuffers(dpy,Wdo);
-		XEvent ev;
-		while(XPending(dpy)){
-			XNextEvent(dpy,&ev);
-		#else
-		SDL_GL_SwapBuffers();
-		SDL_Event ev;
-		while(SDL_PollEvent(&ev)){
-		#endif
-			if(ev.type==ButtonPress){
-				int q=EV(button.x)>>4|EV(button.y)&240,x=q&15,y=q>>4;
-				switch(EV(button.button)){
-				case(1)
-					if(!(F[q]&4))click(x,y);
-				case(2)
-					if(F[q]==2&&getmark(x,y)==getdot(x,y))
-						for(int xx=-1;xx<2;xx++)
-							for(int yy=-1;yy<2;yy++){
-								int X=x+xx&15,Y=y+yy&15;
-								if(!(F[X+Y*16]&4)){
-									click(X,Y);
-									if(lose)goto lost;
-								}
-							}
-				case(3)
-					if(!(F[q]&2))F[q]^=4;
+void GLFWCALL mb(int b,int a){
+	if(!a)return;
+	int x,y;
+	glfwGetMousePos(&x,&y);
+	int q=(x>>=4)|y&240;
+	y>>=4;
+	switch(b){
+	case(GLFW_MOUSE_BUTTON_LEFT)
+		if(!(F[q]&4))click(x,y);
+	case(GLFW_MOUSE_BUTTON_RIGHT)
+		if(!(F[q]&2))F[q]^=4;
+	case(GLFW_MOUSE_BUTTON_MIDDLE)
+		if(F[q]==2&&getmark(x,y)==getdot(x,y))
+			for(int xx=-1;xx<2;xx++)
+				for(int yy=-1;yy<2;yy++){
+					int X=x+xx&15,Y=y+yy&15;
+					if(!(F[X+Y*16]&4)){
+						click(X,Y);
+						if(lose)return;
+					}
 				}
-			}
-			#ifndef GLX
-			else if(ev.type==ClientMessage)return 0;
-			#endif
-		}
-		lost:glClear(GL_COLOR_BUFFER_BIT);
+	}
+}
+int main(int argc,char**argv){
+	glfwInit();
+	glfwDisable(GLFW_AUTO_POLL_EVENTS);
+	glfwOpenWindow(256,256,0,0,0,0,0,0,GLFW_WINDOW);
+	glfwSetMouseButtonCallback(mb);
+	glOrtho(0,256,256,0,1,0);
+	srand(time(0));
+	for(;;){
+		glClear(GL_COLOR_BUFFER_BIT);
 		glColor3ubv(col+WHT);
 		glBegin(GL_LINES);
 		for(int x=16;x<256;x+=16){
@@ -223,7 +196,7 @@ int main(int argc,char**argv){
 			}else if(F[z]==2){
 				int dots=getdot(x,y);
 				if(!dots){
-					glColor3ubv(col+BLU);
+					glColor3ubv(col+DUR);
 					glRecti(x*16,y*16,x*16+16,y*16+16);
 				}else{
 					glColor3ubv(col+colid[dots-1]);
@@ -237,17 +210,19 @@ int main(int argc,char**argv){
 		}
 		if(on==432){
 			lose=1;
+			Tx=160;
+			Ty=32;
 			memset(F,2,256);
 			for(int i=0;i<13;i++)F[win[i]]=3;
 		}
-		if(lose){
-			int t=T,x=270;
-			do tfChar(x-=7,40,t%10); while(t/=10);
-		}else T+=3;
-		#ifdef GLX
-		usleep(30000);
-		#else
-		SDL_Delay(30);
-		#endif
+		if(!lose)T+=30;
+		int t=T/1000,x=Tx;
+		glColor3ubv(col+WHT);
+		do tfChar(x-=7,Ty,t%10); while(t/=10);
+		glfwSwapBuffers();
+		glfwSleep(1./29-glfwGetTime());
+		glfwSetTime(0);
+		glfwPollEvents();
+		if(glfwGetKey(GLFW_KEY_ESC)||!glfwGetWindowParam(GLFW_OPENED))return 0;
 	}
 }

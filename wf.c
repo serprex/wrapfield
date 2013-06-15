@@ -1,7 +1,8 @@
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <winix/rand.h>
+#include <winix/time.h>
 #define XXX 0
 #define XOX 1
 #define OOX 2
@@ -88,6 +89,7 @@ const uint8_t abc[]={
 #define case(x) break;case x:;
 char F[256];
 int T,Tx,Ty,lose=1;
+GLFWwindow*wnd;
 int getxy(int x,int y){
 	return F[(x&15)+(y&15)*16]&1;
 }
@@ -130,7 +132,7 @@ void click(int x,int y){
 			int m=0;
 			memset(F,0,256);
 			for(;;){
-				int x=rand()&255;
+				int x=randint()&255;
 				if(!F[x]){
 					F[x]=1;
 					if(++m==40)break;
@@ -145,11 +147,11 @@ void click(int x,int y){
 	else if(!getdot(x,y))allzero(x,y);
 	F[q]|=2;
 }
-void GLFWCALL mb(int b,int a){
+void mb(GLFWwindow*wnd,int b,int a,int m){
 	if(!a)return;
-	int x,y;
-	glfwGetMousePos(&x,&y);
-	int q=(x>>=4)|y&240;
+	double dx,dy;
+	glfwGetCursorPos(wnd,&dx,&dy);
+	int x=dx,y=dy,q=(x>>=4)|y&240;
 	y>>=4;
 	switch(b){
 	case(GLFW_MOUSE_BUTTON_LEFT)
@@ -170,11 +172,11 @@ void GLFWCALL mb(int b,int a){
 }
 int main(int argc,char**argv){
 	glfwInit();
-	glfwDisable(GLFW_AUTO_POLL_EVENTS);
-	glfwOpenWindow(256,256,0,0,0,0,0,0,GLFW_WINDOW);
-	glfwSetMouseButtonCallback(mb);
+	wnd=glfwCreateWindow(256,256,0,0,0);
+	glfwMakeContextCurrent(wnd);
+	glfwSetMouseButtonCallback(wnd,mb);
 	glOrtho(0,256,256,0,1,0);
-	srand(time(0));
+	initrand();
 	for(;;){
 		glClear(GL_COLOR_BUFFER_BIT);
 		glColor3ubv(col+WHT);
@@ -219,10 +221,9 @@ int main(int argc,char**argv){
 		int t=T/1000,x=Tx;
 		glColor3ubv(col+WHT);
 		do tfChar(x-=7,Ty,t%10); while(t/=10);
-		glfwSwapBuffers();
-		glfwSleep(1./29-glfwGetTime());
-		glfwSetTime(0);
+		glfwSwapBuffers(wnd);
+		endframe(30);
 		glfwPollEvents();
-		if(glfwGetKey(GLFW_KEY_ESC)||!glfwGetWindowParam(GLFW_OPENED))return 0;
+		if(glfwGetKey(wnd,GLFW_KEY_ESCAPE)||glfwWindowShouldClose(wnd))return 0;
 	}
 }

@@ -172,10 +172,11 @@ void mb(GLFWwindow*wnd,int b,int a,int m){
 }
 int main(int argc,char**argv){
 	glfwInit();
-	wnd=glfwCreateWindow(256,256,"",0,0);
+	wnd=glfwCreateWindow(256,256,"wrapfield",0,0);
 	glfwMakeContextCurrent(wnd);
 	glfwSetMouseButtonCallback(wnd,mb);
 	glOrtho(0,256,256,0,1,0);
+	glClearColor(0,0,0,1);
 	initrand();
 	for(;;){
 		glClear(GL_COLOR_BUFFER_BIT);
